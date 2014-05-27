@@ -7,37 +7,12 @@
 #include "nodes/pg_list.h"
 #include "catalog/pg_foreign_server.h"
 #include "catalog/pg_foreign_table.h"
-//#include "commands/defrem.h"
 #include "foreign/fdwapi.h"
 #include "foreign/foreign.h"
-//#include "funcapi.h"
-//#include "lib/stringinfo.h"
-//#include "nodes/relation.h"
-//#include "utils/builtins.h"
-//#include "catalog/pg_type.h"
-//#include "utils/syscache.h"
-//#include "access/relscan.h"
-//#include "nodes/makefuncs.h"
-//#include "nodes/bitmapset.h"
-
-//######################
 #include "commands/explain.h"
 #include "optimizer/paths.h"
 #include "optimizer/pathnode.h"
 #include "optimizer/planmain.h"
-/*
-#include "optimizer/restrictinfo.h"
-#include "optimizer/clauses.h"
-#include "optimizer/var.h"
-#include "access/reloptions.h"
-#include "access/relscan.h"
-#include "access/sysattr.h"
-#include "access/xact.h"
-#include "nodes/makefuncs.h"
-#include "catalog/pg_type.h"
-#include "utils/memutils.h"
-#include "utils/rel.h"
-*/
 #include "parser/parsetree.h"
 
 PG_MODULE_MAGIC;
