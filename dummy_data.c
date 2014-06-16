@@ -5,8 +5,10 @@
 
 #include "postgres.h"
 #include "nodes/pg_list.h"
+#include "nodes/makefuncs.h"
 #include "catalog/pg_foreign_server.h"
 #include "catalog/pg_foreign_table.h"
+#include "catalog/pg_type.h" 
 #include "foreign/fdwapi.h"
 #include "foreign/foreign.h"
 #include "commands/explain.h"
@@ -14,6 +16,7 @@
 #include "optimizer/pathnode.h"
 #include "optimizer/planmain.h"
 #include "parser/parsetree.h"
+#include "optimizer/restrictinfo.h"
 
 PG_MODULE_MAGIC;
 
@@ -115,14 +118,19 @@ dummyGetForeignPlan(PlannerInfo *root,
 						List *tlist,
 						List *scan_clauses)
 {
-//	Index		scan_relid = baserel->relid;
+	Index		scan_relid = baserel->relid;
+  Datum    blob = 0;
+  Const    *blob2 = makeConst(INTERNALOID, 0, 0,
+                 sizeof(blob),
+                 blob,
+                 false, false);
+	scan_clauses = extract_actual_clauses(scan_clauses, false);
 	return make_foreignscan(tlist,
 			scan_clauses,
-			baserel->relid,
+			scan_relid,
 			scan_clauses,		
-			NULL);
+			(void *)blob2);
 }
-
 /*
  * ExplainForeignScan
  *   no extra info explain plan
