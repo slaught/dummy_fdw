@@ -553,6 +553,7 @@ dummyIsForeignRelUpdatable(Relation rel)
 static void
 dummyExplainForeignScan(ForeignScanState *node, ExplainState *es)
 {
+/*
 	List	   *fdw_private;
 	char	   *sql;
 
@@ -562,6 +563,7 @@ dummyExplainForeignScan(ForeignScanState *node, ExplainState *es)
 		sql = strVal(list_nth(fdw_private, FdwScanPrivateSelectSql));
 		ExplainPropertyText("Dummy SQL", sql, es);
 	}
+*/
   
 }
 
