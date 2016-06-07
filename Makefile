@@ -17,7 +17,7 @@ clobber: clean
 $(EXTENSION)--$(EXTVERSION).sql: $(EXTENSION).sql
 	cat $< | sed 's@BUILD_DIR@$(BUILD_DIR)@' > $@
 
-DATA = sql/dummy_data_test.sql 
+DATA = dummy_data_test.sql
 PG_CONFIG ?= pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 REGRESS      = virtual_tests
