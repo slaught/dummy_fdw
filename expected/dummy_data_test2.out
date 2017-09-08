@@ -1,7 +1,7 @@
 -- ===================================================================
 -- create FDW objects
 -- ===================================================================
-CREATE EXTENSION dummy_data;
+-- CREATE EXTENSION dummy_data;
 CREATE SERVER testserver1 FOREIGN DATA WRAPPER dummy_data;
 CREATE SERVER loopback FOREIGN DATA WRAPPER dummy_data
   OPTIONS (dbname 'contrib_regression');
@@ -113,12 +113,13 @@ ALTER FOREIGN TABLE ft2 OPTIONS (schema_name 'S 1', table_name 'T 1');
 ALTER FOREIGN TABLE ft1 ALTER COLUMN c1 OPTIONS (column_name 'C 1');
 ALTER FOREIGN TABLE ft2 ALTER COLUMN c1 OPTIONS (column_name 'C 1');
 \det+
-                             List of foreign tables
- Schema | Table |  Server  |              FDW Options              | Description 
---------+-------+----------+---------------------------------------+-------------
- public | ft1   | loopback | (schema_name 'S 1', table_name 'T 1') | 
- public | ft2   | loopback | (schema_name 'S 1', table_name 'T 1') | 
-(2 rows)
+                                                                            List of foreign tables
+ Schema | Table |  Server   |                                                            FDW Options                                                            | Description 
+--------+-------+-----------+-----------------------------------------------------------------------------------------------------------------------------------+-------------
+ public | ft1   | loopback  | (schema_name 'S 1', table_name 'T 1')                                                                                             | 
+ public | ft2   | loopback  | (schema_name 'S 1', table_name 'T 1')                                                                                             | 
+ public | stats | amazon_s3 | (hostname 's3.amazonaws.com', bucketname 'reports', filename 'hourly.csv', format 'csv', delimiter ',', quote '"', header 'true') | 
+(3 rows)
 
 -- Now we should be able to run ANALYZE.
 -- To exercise multiple code paths, we use local stats on ft1
@@ -317,11 +318,11 @@ EXPLAIN (VERBOSE, COSTS false) SELECT * FROM ft1 t1 WHERE c1 IS NOT NULL;    -- 
 (3 rows)
 
 EXPLAIN (VERBOSE, COSTS false) SELECT * FROM ft1 t1 WHERE round(abs(c1), 0) = 1; -- FuncExpr
-                        QUERY PLAN                        
-----------------------------------------------------------
+                         QUERY PLAN                         
+------------------------------------------------------------
  Foreign Scan on public.ft1 t1
    Output: c1, c2, c3, c4, c5, c6, c7, c8
-   Filter: (round((abs(t1.c1))::numeric, 0) = 1::numeric)
+   Filter: (round((abs(t1.c1))::numeric, 0) = '1'::numeric)
 (3 rows)
 
 EXPLAIN (VERBOSE, COSTS false) SELECT * FROM ft1 t1 WHERE c1 = -c1;          -- OpExpr(l)
@@ -333,11 +334,11 @@ EXPLAIN (VERBOSE, COSTS false) SELECT * FROM ft1 t1 WHERE c1 = -c1;          -- 
 (3 rows)
 
 EXPLAIN (VERBOSE, COSTS false) SELECT * FROM ft1 t1 WHERE 1 = c1!;           -- OpExpr(r)
-                  QUERY PLAN                  
-----------------------------------------------
+                   QUERY PLAN                   
+------------------------------------------------
  Foreign Scan on public.ft1 t1
    Output: c1, c2, c3, c4, c5, c6, c7, c8
-   Filter: (1::numeric = ((t1.c1)::bigint !))
+   Filter: ('1'::numeric = ((t1.c1)::bigint !))
 (3 rows)
 
 EXPLAIN (VERBOSE, COSTS false) SELECT * FROM ft1 t1 WHERE (c1 IS NOT NULL) IS DISTINCT FROM (c1 IS NOT NULL); -- DistinctExpr

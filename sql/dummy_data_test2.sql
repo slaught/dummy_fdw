@@ -2,7 +2,7 @@
 -- create FDW objects
 -- ===================================================================
 
-CREATE EXTENSION dummy_data;
+-- CREATE EXTENSION dummy_data;
 
 CREATE SERVER testserver1 FOREIGN DATA WRAPPER dummy_data;
 CREATE SERVER loopback FOREIGN DATA WRAPPER dummy_data

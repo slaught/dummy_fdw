@@ -42,7 +42,8 @@ static ForeignScan *dummyGetForeignPlan(PlannerInfo *root,
 						Oid foreigntableid,
 						ForeignPath *best_path,
 						List *tlist,
-						List *scan_clauses);
+						List *scan_clauses,
+						Plan *outer_plan);
 static void dummyBeginForeignScan(ForeignScanState *node, int eflags);
 static TupleTableSlot *dummyIterateForeignScan(ForeignScanState *node);
 static void dummyReScanForeignScan(ForeignScanState *node);
@@ -188,12 +189,14 @@ dummyGetForeignPaths(PlannerInfo *root,
 {
 	Path	   *path;
 	path = (Path *) create_foreignscan_path(root, baserel,
+						NULL,
 						baserel->rows,
 						10,
 						0,
-						NIL,	
-						NULL,	
-						NULL);
+						NIL,
+						NULL,
+						NULL,
+						NIL);
   add_path(baserel, path);
 }
 
@@ -207,20 +210,20 @@ dummyGetForeignPlan(PlannerInfo *root,
 						Oid foreigntableid,
 						ForeignPath *best_path,
 						List *tlist,
-						List *scan_clauses)
+						List *scan_clauses,
+						Plan *outer_plan)
 {
 	Index		scan_relid = baserel->relid;
-  Datum    blob = 0;
-  Const    *blob2 = makeConst(INTERNALOID, 0, 0,
-                 sizeof(blob),
-                 blob,
-                 false, false);
 	scan_clauses = extract_actual_clauses(scan_clauses, false);
+
 	return make_foreignscan(tlist,
 			scan_clauses,
 			scan_relid,
-			scan_clauses,		
-			(void *)blob2);
+			scan_clauses,
+			NIL,
+			NIL,
+			NIL,
+			outer_plan);
 }
 /*
  * ExplainForeignScan

@@ -1,5 +1,5 @@
 EXTENSION    = dummy_data
-EXTVERSION   = 1.0
+EXTVERSION   = 2.0
 MODULE_big   = dummy_data
 OBJS         =  dummy_data.o 
 DOCS         = $(wildcard *.md)
@@ -17,15 +17,13 @@ clobber: clean
 $(EXTENSION)--$(EXTVERSION).sql: $(EXTENSION).sql
 	cat $< | sed 's@BUILD_DIR@$(BUILD_DIR)@' > $@
 
-DATA = sql/dummy_data_test.sql 
+DATA = $(EXTENSION)--$(EXTVERSION).sql
 PG_CONFIG ?= pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
-REGRESS      = virtual_tests
+REGRESS      = dummy_data_test dummy_data_test2
 
 include $(PGXS)
 
 PG_TEST_VERSION ?= $(MAJORVERSION)
-TESTS        = $(wildcard test-$(VERSION)/sql/test*.sql)
-REGRESS      = $(patsubst test-$(VERSION)/sql/%.sql,%,$(TESTS))
-REGRESS_OPTS = --inputdir=test-$(VERSION) --load-language=plpgsql
+REGRESS_OPTS = --inputdir=sql --load-language=plpgsql --dbname=regression
 

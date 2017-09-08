@@ -1,3 +1,4 @@
+create extension dummy_data;
 CREATE SERVER 
 amazon_s3 
 FOREIGN DATA WRAPPER dummy_data
