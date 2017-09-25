@@ -37,6 +37,15 @@ static void dummyGetForeignRelSize(PlannerInfo *root,
 static void dummyGetForeignPaths(PlannerInfo *root,
 						 RelOptInfo *baserel,
 						 Oid foreigntableid);
+#if (PG_VERSION_NUM <= 90500)
+static ForeignScan *dummyGetForeignPlan(PlannerInfo *root,
+						RelOptInfo *baserel,
+						Oid foreigntableid,
+						ForeignPath *best_path,
+						List *tlist,
+						List *scan_clauses);
+
+#else
 static ForeignScan *dummyGetForeignPlan(PlannerInfo *root,
 						RelOptInfo *baserel,
 						Oid foreigntableid,
@@ -44,6 +53,7 @@ static ForeignScan *dummyGetForeignPlan(PlannerInfo *root,
 						List *tlist,
 						List *scan_clauses,
 						Plan *outer_plan);
+#endif
 static void dummyBeginForeignScan(ForeignScanState *node, int eflags);
 static TupleTableSlot *dummyIterateForeignScan(ForeignScanState *node);
 static void dummyReScanForeignScan(ForeignScanState *node);
@@ -188,8 +198,19 @@ dummyGetForeignPaths(PlannerInfo *root,
 						 Oid foreigntableid)
 {
 	Path	   *path;
+#if (PG_VERSION_NUM < 90500)
 	path = (Path *) create_foreignscan_path(root, baserel,
+						baserel->rows,
+						10,
+						0,
+						NIL,	
+						NULL,	
+						NULL);
+#else
+	path = (Path *) create_foreignscan_path(root, baserel,
+#if PG_VERSION_NUM >= 90600
 						NULL,
+#endif
 						baserel->rows,
 						10,
 						0,
@@ -197,6 +218,7 @@ dummyGetForeignPaths(PlannerInfo *root,
 						NULL,
 						NULL,
 						NIL);
+#endif
   add_path(baserel, path);
 }
 
@@ -204,6 +226,29 @@ dummyGetForeignPaths(PlannerInfo *root,
  * GetForeignPlan
  *	create a ForeignScan plan node 
  */
+#if (PG_VERSION_NUM <= 90500)
+static ForeignScan *
+dummyGetForeignPlan(PlannerInfo *root,
+						RelOptInfo *baserel,
+						Oid foreigntableid,
+						ForeignPath *best_path,
+						List *tlist,
+						List *scan_clauses)
+{
+	Index		scan_relid = baserel->relid;
+  Datum    blob = 0;
+  Const    *blob2 = makeConst(INTERNALOID, 0, 0,
+                 sizeof(blob),
+                 blob,
+                 false, false);
+	scan_clauses = extract_actual_clauses(scan_clauses, false);
+	return make_foreignscan(tlist,
+			scan_clauses,
+			scan_relid,
+			scan_clauses,		
+			(void *)blob2);
+}
+#else
 static ForeignScan *
 dummyGetForeignPlan(PlannerInfo *root,
 						RelOptInfo *baserel,
@@ -225,6 +270,7 @@ dummyGetForeignPlan(PlannerInfo *root,
 			NIL,
 			outer_plan);
 }
+#endif
 /*
  * ExplainForeignScan
  *   no extra info explain plan
