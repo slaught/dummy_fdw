@@ -6,18 +6,24 @@ DOCS         = $(wildcard *.md)
 
 BUILD_DIR = $(shell pwd)
 
-all: $(EXTENSION)--$(EXTVERSION).sql
+LOADLOCAL=dummy_data--1.0.sql
+
+all: $(LOADLOCAL) $(EXTENSION)--$(EXTVERSION).sql
 
 install: 
 
-clobber: clean 
-	-rm $(EXTENSION)--$(EXTVERSION).sql
+clobber:: clean 
+	-rm dummy_data--1.0.sql
 
-# this doesn't
-$(EXTENSION)--$(EXTVERSION).sql: $(EXTENSION).sql
+# backwards compatibility: loading the library from the build directory
+$(LOADLOCAL) : $(LOADLOCAL).in
 	cat $< | sed 's@BUILD_DIR@$(BUILD_DIR)@' > $@
 
-DATA = $(EXTENSION)--$(EXTVERSION).sql
+$(EXTENSION)--$(EXTVERSION).sql : $(EXTENSION).sql
+	@cp $< $@
+
+DATA_built = $(EXTENSION)--$(EXTVERSION).sql
+# DATA= $(EXTENSION).sql
 PG_CONFIG ?= pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 REGRESS      = dummy_data_test dummy_data_test2
