@@ -198,7 +198,7 @@ dummyGetForeignPaths(PlannerInfo *root,
 						 Oid foreigntableid)
 {
 	Path	   *path;
-#if (PG_VERSION_NUM <= 90500)
+#if (PG_VERSION_NUM < 90500)
 	path = (Path *) create_foreignscan_path(root, baserel,
 						baserel->rows,
 						10,
@@ -208,7 +208,9 @@ dummyGetForeignPaths(PlannerInfo *root,
 						NULL);
 #else
 	path = (Path *) create_foreignscan_path(root, baserel,
+#if PG_VERSION_NUM >= 90600
 						NULL,
+#endif
 						baserel->rows,
 						10,
 						0,
